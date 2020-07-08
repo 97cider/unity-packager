@@ -1,0 +1,17 @@
+{
+  "name": "unity-packager",
+  "version": "1.0.0",
+  "description": "Packages Unity projects and generates the respective build file / exe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "unity"
+  ],
+  "author": "Sean McFadden",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.4.0"
+  }
+}
