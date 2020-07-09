@@ -4,7 +4,10 @@
   "description": "Packages Unity projects and generates the respective build file / exe",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/test.js",
+    "flow": "flow",
+    "build": "babel src -d dist",
+    "serve": "node dist/index.js"
   },
   "keywords": [
     "unity"
@@ -12,7 +15,13 @@
   "author": "Sean McFadden",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.10.4",
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
     "eslint": "^7.4.0",
     "mocha": "^8.0.1"
+  },
+  "dependencies": {
+    "rimraf": "^3.0.2"
   }
 }
