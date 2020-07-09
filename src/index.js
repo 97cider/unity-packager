@@ -17,11 +17,31 @@ function buildConfig (options) {
     }
 }
 
-function createBuildString (src, opts) {
+function getUnityPath (unityPath) {
     const platform = os.platform();
-    if (platform === 'win32') {
-        console.log("This is a windows architecture, using standard C:/ notation to get the unity exe");
+    let uPath;
+
+    if (unityPath) {
+        return unityPath;
     }
+
+    if (platform === 'win32') {
+        uPath = '"C:/Program Files/Unity/Editor/Unity.exe"';
+    }
+
+    //TODO: Add default paths for other distributions
+    return uPath ?? '';
+}
+
+function createBuildString (src, opts) {
+    let buildString = getUnityPath(opts.unityPath);
+
+    buildString += opts.apiUpdate ? ' -accept-apiupdate' : '';
+    buildString += opts.batchMode ? ' -batchmode' : '';
+    buildString += opts.logPath ? ` -logFile ${ opts.logPath }` : '';
+    buildString += ` -projectPath ${ src }`;
+
+    return buildString;
 }
 
 async function executeBuildScript (src, opts) {
@@ -36,6 +56,7 @@ async function executeBuildScript (src, opts) {
 function executeBuildScriptSync (src, opts) {
     try {
         const buildString = createBuildString(src, opts);
+        console.log(buildString);
         //exec()
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);

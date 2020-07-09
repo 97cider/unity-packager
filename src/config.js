@@ -1,4 +1,8 @@
+//TODO: Definitely add flow support for types
+
 module.exports = {
+    unityPath: undefined,
+    logPath: undefined,
     flushBuildFolder: true,
     apiUpdate: false,
     batchMode: false,
