@@ -1,12 +1,17 @@
+// @flow
+
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+
+//$FlowFixMe
+const { exec, execSync } = require('child_process');
+
 const os = require('os');
 const rimraf = require('rimraf');
 const conf = require('./config');
 
 
-function buildConfig (options) {
+function buildConfig (options: any) {
     try {
         const opts = options || {};
         const configuration = Object.assign(conf, opts);
@@ -17,7 +22,7 @@ function buildConfig (options) {
     }
 }
 
-function getUnityPath (unityPath) {
+function getUnityPath (unityPath: string) {
     const platform = os.platform();
     let uPath;
 
@@ -33,7 +38,7 @@ function getUnityPath (unityPath) {
     return uPath ?? '';
 }
 
-function createBuildString (src, opts) {
+function createBuildString (src: string, opts: any) {
     let buildString = getUnityPath(opts.unityPath);
 
     buildString += opts.apiUpdate ? ' -accept-apiupdate' : '';
@@ -46,7 +51,7 @@ function createBuildString (src, opts) {
     return buildString;
 }
 
-async function executeBuildScript (src, opts) {
+async function executeBuildScript (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
         //exec()
@@ -55,7 +60,7 @@ async function executeBuildScript (src, opts) {
     }
 }
 
-function executeBuildScriptSync (src, opts) {
+function executeBuildScriptSync (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
         console.log(buildString);
@@ -66,7 +71,7 @@ function executeBuildScriptSync (src, opts) {
 }
 
 const UnityPackager = {
-    async BuildProject (src, dst, options) {
+    async BuildProject (src: string, dst: string, options: any) {
 
         if (typeof(src) !== 'string' && typeof(dst) !== 'string') {
             throw new Error('unity-packager: Source and Destination file paths must be strings!');
@@ -88,7 +93,7 @@ const UnityPackager = {
         const commandArgs = buildOptions || {};
 
     },
-    BuildProjectSync (src, dst, options) {
+    BuildProjectSync (src: string, dst: string, options: any) {
         if (typeof(src) !== 'string' && typeof(dst) !== 'string') {
             throw new Error('unity-packager: Source and Destination file paths must be strings!');
         }

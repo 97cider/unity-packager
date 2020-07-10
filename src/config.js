@@ -1,4 +1,4 @@
-//TODO: Definitely add flow support for types
+// @flow
 
 module.exports = {
     buildClass: {
