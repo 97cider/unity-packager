@@ -40,6 +40,8 @@ function createBuildString (src, opts) {
     buildString += opts.batchMode ? ' -batchmode' : '';
     buildString += opts.logPath ? ` -logFile ${ opts.logPath }` : '';
     buildString += ` -projectPath ${ src }`;
+    buildString += (opts.buildClass.className && opts.buildClass.buildMethod) ? 
+        ` -executeMethod ${ opts.buildClass.className }.${ opts.buildClass.buildMethod }` : '';
 
     return buildString;
 }

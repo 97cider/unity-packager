@@ -1,11 +1,15 @@
 //TODO: Definitely add flow support for types
 
 module.exports = {
+    buildClass: {
+        className: undefined,
+        buildMethod: undefined
+    },
     unityPath: undefined,
     logPath: undefined,
     flushBuildFolder: true,
     apiUpdate: false,
-    batchMode: false,
+    batchMode: true,
     deepProfiling: false,
     disableAssemblyUpdater: false,
     debugShaderCompiler: false,

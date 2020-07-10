@@ -6,4 +6,4 @@ const buildPath = 'C:/Users/Meme Machine/UnityPackagerTest/Assets/WebGLBuilder.c
 
 UnityPackager.BuildProjectSync( buildPath, "./build" );
 
-UnityPackager.BuildProjectSync( buildPath, "./build", { logPath: './build/logs/buildLog.txt', apiUpdate: true } );
+UnityPackager.BuildProjectSync( buildPath, "./build", { logPath: './build/logs/buildLog.txt', apiUpdate: true, buildClass : { className: 'WebGLBuilder', buildMethod: 'build'} } );
