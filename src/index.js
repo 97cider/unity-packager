@@ -44,7 +44,7 @@ function createBuildString (src: string, opts: any) {
     buildString += opts.apiUpdate ? ' -accept-apiupdate' : '';
     buildString += opts.batchMode ? ' -batchmode' : '';
     buildString += opts.logPath ? ` -logFile ${ opts.logPath }` : '';
-    buildString += ` -projectPath ${ src }`;
+    buildString += ` -projectPath "${ src }"`;
     buildString += (opts.buildClass.className && opts.buildClass.buildMethod) ? 
         ` -executeMethod ${ opts.buildClass.className }.${ opts.buildClass.buildMethod }` : '';
 
@@ -54,7 +54,6 @@ function createBuildString (src: string, opts: any) {
 async function executeBuildScript (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
-        //exec()
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);
     }
@@ -64,7 +63,15 @@ function executeBuildScriptSync (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
         console.log(buildString);
-        //exec()
+        const buildProcess = execSync(buildString, { windowsHide: true }, (error, stdout, stderr) => {
+            if (error) {
+                throw new Error('unity-packager: There was an error executing the build process. Error: ' + err); 
+            }
+
+            if (opts.logBuild && stdout) {
+                console.log(stdout);
+            }
+        });
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);
     }
@@ -83,7 +90,7 @@ const UnityPackager = {
 
         if (options.flushBuildFolder) {
             try {
-                await rimraf(dst);
+                await rimraf(dst + '/*');
             } catch ( err ) {
                 console.error("unity-packager: Failed to clean build directory. Error: " + err);
             } 
@@ -107,7 +114,7 @@ const UnityPackager = {
 
         if (commandArgs.flushBuildFolder) {
             try {
-                rimraf.sync(dst);
+                rimraf.sync(dst + '/*');
             } catch ( err ) {
                 console.error("unity-packager: Failed to clean build directory. Error: " + err);
             } 

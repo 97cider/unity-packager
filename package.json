@@ -7,7 +7,8 @@
     "test": "node test/test.js",
     "flow": "flow",
     "build": "babel src -d lib",
-    "serve": "node dist/index.js"
+    "serve": "node dist/index.js",
+    "debug-build": "npm run build && npm run test"
   },
   "keywords": [
     "unity"

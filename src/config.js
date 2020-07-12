@@ -6,6 +6,7 @@ module.exports = {
         buildMethod: undefined
     },
     unityPath: undefined,
+    logBuild: false,
     logPath: undefined,
     flushBuildFolder: true,
     apiUpdate: false,
