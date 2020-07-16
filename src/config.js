@@ -21,5 +21,6 @@ module.exports = {
     forceMetal: false,
     enableProfiler: false,
     setDefaultPlatformTextureFormat: false,
-    silentCrashes: false
+    silentCrashes: false,
+    timeout: undefined
 };

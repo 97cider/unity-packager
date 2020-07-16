@@ -27,7 +27,7 @@ function getUnityPath (unityPath: string) {
     let uPath;
 
     if (unityPath) {
-        return unityPath;
+        return `"${ unityPath }"`;
     }
 
     if (platform === 'win32') {
@@ -59,11 +59,43 @@ async function executeBuildScript (src: string, opts: any) {
     }
 }
 
+function finalizeBuild ( startingTime ) {
+    const completeTime = Date.now();
+    const buildTime = completeTime - startingTime;
+    let buildData = {
+        completeTime: completeTime? completeTime : 0.00
+    };
+    return buildData;
+}
+
 function executeBuildScriptSync (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
-        console.log(buildString);
-        const buildProcess = execSync(buildString, { windowsHide: true }, (error, stdout, stderr) => {
+        const startingTime = Date.now();
+        let buildProcess = {};
+        let buildResults = {};
+
+        if ( opts.timeout ) {
+            console.log("Starting timeout");
+            setTimeout(() => {
+                console.log("Timeout reached");
+                if ( buildProcess ) {
+                    
+                    buildResults = finalizeBuild(startingTime);
+                    buildProcess.kill();
+                     console.log("process killed");
+                    return buildResults;
+                }
+                else {
+
+                    // kill the build process
+
+                    throw new Error('unity-packager-warn: The build has timed out.');
+                }
+            }, opts.timeout);
+        }
+
+        buildProcess = execSync(buildString, { windowsHide: true }, (error, stdout, stderr) => {
             if (error) {
                 throw new Error('unity-packager: There was an error executing the build process. Error: ' + err); 
             }
@@ -71,6 +103,7 @@ function executeBuildScriptSync (src: string, opts: any) {
             if (opts.logBuild && stdout) {
                 console.log(stdout);
             }
+            finalizeBuild( buildProcess, startingTime );
         });
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);
