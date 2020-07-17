@@ -51,9 +51,41 @@ function createBuildString (src: string, opts: any) {
     return buildString;
 }
 
-async function executeBuildScript (src: string, opts: any) {
+async function executeBuildScript(src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
+        const startingTime = Date.now();
+        let buildProcess = {};
+        let buildResults = {};
+
+        if ( opts.timeout ) {
+            console.log("Starting timeout");
+            setTimeout(() => {
+                console.log("Timeout reached");
+                if ( buildProcess != {} ) {
+                    buildResults = finalizeBuild(startingTime);
+                    buildProcess.kill();
+                     console.log("process killed");
+                    return buildResults;
+                }
+                else {
+                    // kill the build process
+                    throw new Error('unity-packager-warn: The build has timed out.');
+                }
+            }, opts.timeout);
+        }
+
+        buildProcess = exec(buildString, { windowsHide: true }, (error, stdout, stderr) => {
+            if (error) {
+                throw new Error('unity-packager: There was an error executing the build process. Error: ' + err); 
+            }
+
+            if (opts.logBuild && stdout) {
+                console.log(stdout);
+            }
+            finalizeBuild( buildProcess, startingTime );
+            buildProcess = {};
+        });
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);
     }
@@ -65,6 +97,7 @@ function finalizeBuild ( startingTime ) {
     let buildData = {
         completeTime: completeTime? completeTime : 0.00
     };
+
     return buildData;
 }
 
@@ -74,26 +107,6 @@ function executeBuildScriptSync (src: string, opts: any) {
         const startingTime = Date.now();
         let buildProcess = {};
         let buildResults = {};
-
-        if ( opts.timeout ) {
-            console.log("Starting timeout");
-            setTimeout(() => {
-                console.log("Timeout reached");
-                if ( buildProcess ) {
-                    
-                    buildResults = finalizeBuild(startingTime);
-                    buildProcess.kill();
-                     console.log("process killed");
-                    return buildResults;
-                }
-                else {
-
-                    // kill the build process
-
-                    throw new Error('unity-packager-warn: The build has timed out.');
-                }
-            }, opts.timeout);
-        }
 
         buildProcess = execSync(buildString, { windowsHide: true }, (error, stdout, stderr) => {
             if (error) {
@@ -121,6 +134,9 @@ const UnityPackager = {
             throw new Error('unity-packager: Source directory does not exists!');
         }
 
+        const buildOptions = buildConfig(options);
+        const commandArgs = buildOptions || {};
+
         if (options.flushBuildFolder) {
             try {
                 await rimraf(dst + '/*');
@@ -129,8 +145,7 @@ const UnityPackager = {
             } 
         }
 
-        const buildOptions = buildConfig(options);
-        const commandArgs = buildOptions || {};
+        await executeBuildScript(src, commandArgs);
 
     },
     BuildProjectSync (src: string, dst: string, options: any) {

@@ -18,4 +18,11 @@ const buildOptions = {
 
 //UnityPackager.BuildProjectSync( buildPath, "./build" );
 
-UnityPackager.BuildProjectSync( buildPath, "./build", buildOptions );
+//UnityPackager.BuildProjectSync( buildPath, "./build", buildOptions );
+
+const pack = UnityPackager.BuildProject(buildPath, "./build", buildOptions);
+
+pack.then(build => {
+    console.log("Hey the build finished!");
+    console.log(build);
+});
