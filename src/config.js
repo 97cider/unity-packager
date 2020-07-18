@@ -5,6 +5,7 @@ module.exports = {
         className: undefined,
         buildMethod: undefined
     },
+    forceQuit: true,
     unityPath: undefined,
     logBuild: false,
     logPath: undefined,

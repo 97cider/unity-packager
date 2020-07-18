@@ -41,6 +41,7 @@ function getUnityPath (unityPath: string) {
 function createBuildString (src: string, opts: any) {
     let buildString = getUnityPath(opts.unityPath);
 
+    buildString += opts.forceQuit ? ' -quit' : '';
     buildString += opts.apiUpdate ? ' -accept-apiupdate' : '';
     buildString += opts.batchMode ? ' -batchmode' : '';
     buildString += opts.logPath ? ` -logFile ${ opts.logPath }` : '';
@@ -51,44 +52,50 @@ function createBuildString (src: string, opts: any) {
     return buildString;
 }
 
-async function executeBuildScript(src: string, opts: any) {
+async function executeBuildScript (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
         const startingTime = Date.now();
         let buildProcess = {};
         let buildResults = {};
 
-        if ( opts.timeout ) {
-            console.log("Starting timeout");
-            setTimeout(() => {
-                console.log("Timeout reached");
-                if ( buildProcess != {} ) {
-                    buildResults = finalizeBuild(startingTime);
-                    buildProcess.kill();
-                     console.log("process killed");
-                    return buildResults;
-                }
-                else {
-                    // kill the build process
-                    throw new Error('unity-packager-warn: The build has timed out.');
-                }
-            }, opts.timeout);
-        }
+        // if ( opts.timeout ) {
+        //     console.log("Starting timeout");
+        //     setTimeout(() => {
+        //         console.log("Timeout reached");
+        //         if ( buildProcess != {} ) {
+        //             buildResults = finalizeBuild(startingTime);
+        //             buildProcess.kill();
+        //              console.log("process killed");
+        //             return buildResults;
+        //         }
+        //         else {
+        //             // kill the build process
+        //             throw new Error('unity-packager-warn: The build has timed out.');
+        //         }
+        //     }, opts.timeout);
+        // }
 
-        buildProcess = exec(buildString, { windowsHide: true }, (error, stdout, stderr) => {
-            if (error) {
-                throw new Error('unity-packager: There was an error executing the build process. Error: ' + err); 
-            }
+        buildProcess = await executeBuildCommand(buildString);
+        buildResults = finalizeBuild( startingTime );
+        
+        console.log("Finished executing build command");
+        return Promise.resolve(buildResults);
 
-            if (opts.logBuild && stdout) {
-                console.log(stdout);
-            }
-            finalizeBuild( buildProcess, startingTime );
-            buildProcess = {};
-        });
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);
     }
+}
+
+function executeBuildCommand (command) {
+    return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.warn(error);
+            }
+            resolve(stdout? stdout : stderr);
+        });
+    });
 }
 
 function finalizeBuild ( startingTime ) {
