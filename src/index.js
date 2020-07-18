@@ -3,15 +3,17 @@
 const fs = require('fs');
 const path = require('path');
 
-//$FlowFixMe
+// $FlowFixMe
 const { exec, execSync } = require('child_process');
 
 const os = require('os');
 const rimraf = require('rimraf');
-const conf = require('./config');
 
+// flow **imports**
+import type Config from './config';
+import conf from './config';
 
-function buildConfig (options: any) {
+function buildConfig (options: Config) {
     try {
         const opts = options || {};
         const configuration = Object.assign(conf, opts);
@@ -131,7 +133,7 @@ function executeBuildScriptSync (src: string, opts: any) {
 }
 
 const UnityPackager = {
-    async BuildProject (src: string, dst: string, options: any) {
+    async BuildProject (src: string, dst: string, options: Config) {
 
         if (typeof(src) !== 'string' && typeof(dst) !== 'string') {
             throw new Error('unity-packager: Source and Destination file paths must be strings!');

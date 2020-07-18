@@ -1,6 +1,32 @@
 // @flow
 
-module.exports = {
+export type Config = {
+     buildClass: {
+        className: string;
+        buildMethod: string;
+    };
+    forceQuit: boolean;
+    unityPath: string;
+    logBuild: boolean;
+    logPath: string;
+    flushBuildFolder: boolean;
+    apiUpdate: boolean;
+    batchMode: boolean;
+    deepProfiling: boolean;
+    disableAssemblyUpdater: boolean;
+    debugShaderCompiler: boolean;
+    codeCoverage: boolean;
+    forceD3D11: boolean;
+    forceD3D12: boolean;
+    forceDeviceIndex: boolean;
+    forceMetal: boolean;
+    enableProfiler: boolean;
+    setDefaultPlatformTextureFormat: boolean;
+    silentCrashes: boolean;
+    timeout: number;
+}
+
+export default ({
     buildClass: {
         className: undefined,
         buildMethod: undefined
@@ -24,4 +50,4 @@ module.exports = {
     setDefaultPlatformTextureFormat: false,
     silentCrashes: false,
     timeout: undefined
-};
+} : Config);
