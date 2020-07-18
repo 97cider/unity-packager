@@ -87,6 +87,8 @@ async function executeBuildScript (src: string, opts: any) {
 function executeBuildCommand (command, timeout) {
     return new Promise((resolve, reject) => {
 
+        let timedOut = false;
+
         if ( timeout ) {
             buildTimeout = setTimeout(() => {
 
@@ -94,16 +96,19 @@ function executeBuildCommand (command, timeout) {
                 let startingTime = Date.now() - timeout;
                 let buildResults = finalizeBuild(startingTime);
 
-                buildProcess.kill();
+                console.log(buildProcess.pid);
+                process.kill(buildProcess.pid);
                 console.log("Process killed successfully");
                 console.log("Build Results" + buildResults);
+                timedOut = true;
                 resolve();
             }, timeout);
         }
 
         buildProcess = exec(command, (error, stdout, stderr) => {
-            if (error) {
-                console.warn(error);
+            if (timedOut) {
+                console.log("Timed out, and rejecting the process");
+                reject();
             }
             resolve(stdout? stdout : stderr);
         });
@@ -125,6 +130,7 @@ function executeBuildScriptSync (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
         const startingTime = Date.now();
+
         let buildProcess = {};
         let buildResults = {};
 
