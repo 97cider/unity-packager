@@ -5,13 +5,15 @@ const path = require('path');
 
 // $FlowFixMe
 const { exec, execSync } = require('child_process');
-
 const os = require('os');
 const rimraf = require('rimraf');
 
 // flow **imports**
 import type Config from './config';
 import conf from './config';
+
+let buildTimeout;
+let buildProcess = {};
 
 function buildConfig (options: Config) {
     try {
@@ -58,40 +60,48 @@ async function executeBuildScript (src: string, opts: any) {
     try {
         const buildString = createBuildString(src, opts);
         const startingTime = Date.now();
-        let buildProcess = {};
+
+        let buildPromise;
         let buildResults = {};
 
-        // if ( opts.timeout ) {
-        //     console.log("Starting timeout");
-        //     setTimeout(() => {
-        //         console.log("Timeout reached");
-        //         if ( buildProcess != {} ) {
-        //             buildResults = finalizeBuild(startingTime);
-        //             buildProcess.kill();
-        //              console.log("process killed");
-        //             return buildResults;
-        //         }
-        //         else {
-        //             // kill the build process
-        //             throw new Error('unity-packager-warn: The build has timed out.');
-        //         }
-        //     }, opts.timeout);
-        // }
-
-        buildProcess = await executeBuildCommand(buildString);
+        buildPromise = executeBuildCommand(buildString, opts.timeout);
         buildResults = finalizeBuild( startingTime );
+
+        await buildPromise;
+
+        if ( opts.timeout ) {
+            clearTimeout(buildTimeout);
+        }
+
+        if ( buildProcess.killed ) {
+            console.log("Build process has been terminated");
+        }
         
         console.log("Finished executing build command");
         return Promise.resolve(buildResults);
-
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);
     }
 }
 
-function executeBuildCommand (command) {
+function executeBuildCommand (command, timeout) {
     return new Promise((resolve, reject) => {
-        exec(command, (error, stdout, stderr) => {
+
+        if ( timeout ) {
+            buildTimeout = setTimeout(() => {
+
+                // This feels gross but it works >:)
+                let startingTime = Date.now() - timeout;
+                let buildResults = finalizeBuild(startingTime);
+
+                buildProcess.kill();
+                console.log("Process killed successfully");
+                console.log("Build Results" + buildResults);
+                resolve();
+            }, timeout);
+        }
+
+        buildProcess = exec(command, (error, stdout, stderr) => {
             if (error) {
                 console.warn(error);
             }
@@ -100,11 +110,12 @@ function executeBuildCommand (command) {
     });
 }
 
-function finalizeBuild ( startingTime ) {
+function finalizeBuild ( startingTime, timeout ) {
     const completeTime = Date.now();
     const buildTime = completeTime - startingTime;
     let buildData = {
-        completeTime: completeTime? completeTime : 0.00
+        completeTime: completeTime ? completeTime : 0.00,
+        timeout: timeout ? true : false
     };
 
     return buildData;

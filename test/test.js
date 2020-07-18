@@ -11,7 +11,7 @@ const buildOptions = {
         className: 'WebGLBuilder', 
         buildMethod: 'build'
     },
-    timeout: 300000
+    timeout: 3000
 };
 
 // There will be some nice testing in here eventually (via mocha)
