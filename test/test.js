@@ -5,13 +5,14 @@ const { UnityPackager } = require('../lib/index.js');
 
 const buildPath = 'C:/Users/Meme Machine/UnityPackagerTest/';
 const buildOptions = {
-    unityPath: 'C:/Program Files/Unity/Hub/Editor/2019.3.10f1/Editor/Unity.exe',
+    unityPath: 'C:/Program Files/Unity/Hub/Editor/2019.4.1f1/Editor/Unity.exe',
     apiUpdate: true, 
     buildClass : { 
         className: 'WebGLBuilder', 
         buildMethod: 'build'
     },
-    timeout: 3000
+    timeout: 3000,
+    consoleOutput: true,
 };
 
 // There will be some nice testing in here eventually (via mocha)

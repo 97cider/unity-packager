@@ -24,6 +24,7 @@ export type Config = {
     setDefaultPlatformTextureFormat: boolean;
     silentCrashes: boolean;
     timeout: number;
+    consoleOutput: boolean;
 }
 
 export default ({
@@ -49,5 +50,6 @@ export default ({
     enableProfiler: false,
     setDefaultPlatformTextureFormat: false,
     silentCrashes: false,
-    timeout: undefined
+    timeout: undefined,
+    consoleOutput: false,
 } : Config);

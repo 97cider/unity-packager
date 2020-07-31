@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const utils = require('./utils');
 
 // $FlowFixMe
 const { exec, execSync } = require('child_process');
@@ -21,7 +22,7 @@ function buildConfig (options: Config) {
         const configuration = Object.assign(conf, opts);
         return configuration;
     } catch ( err ) {
-        console.error('unity-packager: There was an error using the options specified. Error: ' + err);
+        console.error('unity-packager-error: There was an error using the options specified. Error: ' + err);
         return conf;
     }
 }
@@ -30,16 +31,23 @@ function getUnityPath (unityPath: string) {
     const platform = os.platform();
     let uPath;
 
-    if (unityPath) {
-        return `"${ unityPath }"`;
-    }
+    try {
+        if (unityPath) {
+            if(fs.existsSync(unityPath)) {
+                return `"${ unityPath }"`;
+            }
+            console.error("unity-packager-ERROR: The Unity path could not be found.");
+        }
 
-    if (platform === 'win32') {
-        uPath = '"C:/Program Files/Unity/Editor/Unity.exe"';
-    }
+        if (platform === 'win32') {
+            uPath = '"C:/Program Files/Unity/Editor/Unity.exe"';
+        }
 
-    //TODO: Add default paths for other distributions
-    return uPath ?? '';
+        //TODO: Add default paths for other distributions
+        return uPath ?? '';
+    } catch (err) {
+        console.error('unity-packager-ERROR: There was an error verifying the Unity path. Error: ' + err);
+    }
 }
 
 function createBuildString (src: string, opts: any) {
@@ -74,10 +82,10 @@ async function executeBuildScript (src: string, opts: any) {
         }
 
         if ( buildProcess.killed ) {
-            console.log("Build process has been terminated");
+            utils.logMessage(opts.consoleOutput,"Build process has been terminated");
         }
-        
-        console.log("Finished executing build command");
+
+        utils.logMessage(opts.consoleOutput, "Finished executing build command");
         return Promise.resolve(buildResults);
     } catch ( err ) {
         throw new Error('unity-packager: There was an error executing the build command. Error: ' + err);
@@ -96,10 +104,8 @@ function executeBuildCommand (command, timeout) {
                 let startingTime = Date.now() - timeout;
                 let buildResults = finalizeBuild(startingTime);
 
-                console.log(buildProcess.pid);
                 process.kill(buildProcess.pid);
                 console.log("Process killed successfully");
-                console.log("Build Results" + buildResults);
                 timedOut = true;
                 resolve();
             }, timeout);
@@ -140,7 +146,7 @@ function executeBuildScriptSync (src: string, opts: any) {
             }
 
             if (opts.logBuild && stdout) {
-                console.log(stdout);
+                utils.logMessage(opts.consoleOutput, stdout);
             }
             finalizeBuild( buildProcess, startingTime );
         });
@@ -167,7 +173,7 @@ const UnityPackager = {
             try {
                 await rimraf(dst + '/*');
             } catch ( err ) {
-                console.error("unity-packager: Failed to clean build directory. Error: " + err);
+                utils.logError(buildOptions.consoleOutput, "unity-packager: Failed to clean build directory. Error: " + err);
             } 
         }
 
@@ -190,7 +196,7 @@ const UnityPackager = {
             try {
                 rimraf.sync(dst + '/*');
             } catch ( err ) {
-                console.error("unity-packager: Failed to clean build directory. Error: " + err);
+                utils.logError(buildOptions.consoleOutput, "unity-packager: Failed to clean build directory. Error: " + err);
             } 
         }
 
