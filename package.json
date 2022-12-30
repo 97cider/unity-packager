@@ -24,7 +24,7 @@
     "@babel/preset-flow": "^7.10.4",
     "eslint": "^7.4.0",
     "flow-bin": "^0.129.0",
-    "mocha": "^8.0.1"
+    "mocha": "^8.4.0"
   },
   "dependencies": {
     "rimraf": "^3.0.2"
